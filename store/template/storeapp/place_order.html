@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block 'main' %}
+<div class="row mt-3">
+    <div class="col-md-9">
+        <h5 class="bg-danger text-white p-2">Customer Details</h5>
+
+        <table class="table">
+            <tr>
+                <th>Customer Name</th>
+                <td>Itvedant Thane</td>
+            </tr>
+            <tr>
+                <th>Mobile Number</th>
+                <td>9898989898</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td>itvedant@gmail.com</td>
+            </tr>
+        </table>
+
+    <h5 class="bg-danger text-white p-1">Order Details</h5>
+    <div class="row">
+        <div class="col-md-3">
+            <img src="{% static 'assets/image/Samsung.jpg' %}" width="100%" alt="">
+        </div>
+
+        <div class="col-md-9">
+            <table class="table table-borderless">
+            <tr>
+                <th>Name:</th>
+                <td>Samsung</td>
+            </tr>
+
+            <tr>
+                <th>Price:</th>
+                <td>Rs.80000</td>
+            </tr>
+
+            <tr>
+                <th>Product Category:</th>
+                <td>Mobile</td>
+            </tr>
+
+            </tr>
+
+            <tr>
+                <td><button class="btn btn-danger">Remove</button></td>
+            </tr>
+
+            </table>
+        </div>
+    </div>
+    </div>
+
+    <div class="col-md-3">
+        <h5 class="bg-danger text-white p-1">Cart Total</h5>
+        <table class="table table-borderless">
+            <tr>
+                <th>Total Items</th>
+                <td>4</td>
+            </tr>
+            <tr>
+                <th>Total Amouont</th>
+                <td>Rs.2,40,000</td>
+            </tr>
+            <tr>
+                <td><button class="btn btn-danger">Make Payment</button></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<!--Main Section starts-->
+
+{% endblock 'main' %}

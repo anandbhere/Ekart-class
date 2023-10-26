@@ -1,0 +1,19 @@
+session
+
+1. Session is piece of information stored in server side
+
+2.
+
+3.Data stored in session can be accessed anywhere
+4. Data stored on session is secured as it is stored on server side
+ hense sensitive info such as username and password is stored in session
+
+5.On the server side session data can be stored in two ways
+   i.  in file 
+   ii. in database table
+   iii.  In Django session data is stored in django_ session table
+
+
+Login Function
+
+login fn starts session and store object of authenticated user in session
