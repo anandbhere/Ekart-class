@@ -22,7 +22,22 @@
 
     <div class="col-md-3">
         <a href="/cart/{{product.id}}"><button class="btn btn-danger">Add to Cart</button></a>
-       <a href="#"><button class="btn btn-danger">Buy Now</button></a> 
+       <a href="#"><button class="btn btn-danger">Buy Now</button></a><br><br>
+       {% if msg1 %} 
+            <div class="alert alert-danger">
+                {{msg1}}
+
+                <a href="/cart"><i class="bi bi-cart-fill"> Veiw cart</i></a>
+            </div>
+       {% endif %}
+
+       {% if msg2 %} 
+       <div class="alert alert-success">
+           {{msg2}}
+
+           <a href="/cart"><i class="bi bi-cart-fill"> Veiw cart</i></a>
+       </div>
+  {% endif %}
     </div>
 
 </div>

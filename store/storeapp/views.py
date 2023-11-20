@@ -1,7 +1,10 @@
 from django.shortcuts import render,redirect,HttpResponse
 from productapp.models import Product
 from django.db.models import Q
-from storeapp.models import Cart
+from storeapp.models import Cart,Order
+import razorpay
+from django.core.mail import send_mail
+
 # Create your views here.
 '''
 views provise response to client by using:
@@ -46,7 +49,7 @@ def home(request):
 
 def product_details(request,pid):
     #fetch p details with id
-    p= Product.objects.get(id=pid)
+    p = Product.objects.get(id=pid)
     print(p)
 
     context ={}
@@ -54,22 +57,28 @@ def product_details(request,pid):
 
     return render(request,'storeapp/product_details.html',context)
 
-def place_order(request):
-    if request.user.is_authenticated:
-        return render(request,'storeapp/place_order.html')
-    else:
-        return redirect('accountapp/login')
 
-
-    return render(request,'storeapp/place_order.html')
 
 def about(request):
     return render(request,'storeapp/about.html')
 
 def cart(request):
-    print("Is Logged in",request.user.is_authenticated)
+    #print("Is Logged in",request.user.is_authenticated)
     if request.user.is_authenticated:
-        return render(request,'storeapp/cart.html')
+        context = {}
+        #Fetch all cart product of logged   in user
+        # Select * from storeapp_cart where uid = 4
+        c = Cart.objects.filter(uid = request.user.id)
+        #print(c)
+        total = 0
+        for x in c:
+            total = total+(x.pid.price*x.qty)
+
+        nos = len(c)
+        context['n']= nos
+        context['amt'] = total
+        context['products'] = c
+        return render(request,'storeapp/cart.html',context)
     else:
         return redirect('accountapp/login')
 
@@ -152,11 +161,171 @@ def search(request):
 
 def addTo_cart(request,prod_id):
     if request.user.is_authenticated:
-        print(prod_id)
+        context = {}
         user_id = request.user
         product_obj = Product.objects.get(id = prod_id)
-        c = Cart.objects.create(uid = user_id,pid = product_obj)
-        c.save()
-        return HttpResponse("Product added successfullly")
+        q1 = Q(uid = user_id)
+        q2 = Q(pid = prod_id)
+        check = Cart.objects.filter(q1 & q2)
+        print(check)
+        context['product'] = product_obj    
+        
+        if len(check):
+            context['msg1'] = "Product already exist in the cart"
+            return render(request,"storeapp/product_details.html",context)
+
+        else:
+            c= Cart.objects.create(uid = request.user ,pid =product_obj)
+            c.save()
+            context['msg2'] = "Product successfully added in cart"
+            return render(request,"storeapp/product_details.html",context)
+
+        # c = Cart.objects.create(uid = user_id,pid = product_obj)
+        # c.save()
+        
     else:
         return redirect('/accountapp/login')
+
+#get quantity change  in the cart item 
+def changeqty(request,cid):
+    qparam = request.GET['q']
+    print(cid)
+    print(qparam)
+    c = Cart.objects.filter(id = cid)
+    print(c)
+    print(c[0])
+    x= c[0].qty
+
+    #increase/decre
+    if qparam == "plus":
+        x= x+1
+    else:
+        if x>1:
+            x=x-1
+
+    #update
+    c.update(qty=x)
+    return redirect('/cart')
+
+
+
+
+def removecart(request,remove_id):
+    c=Cart.objects.get(id=remove_id)
+   # print(r)
+    c.delete()
+    return redirect('/cart')
+
+
+## Order management
+import random
+def generate_orderId():
+    n=random.randrange(1000,9999)
+    order_id = n
+    o = Order.objects.filter(order_id = order_id)
+    if len(o) == 0:
+        return order_id
+    else:
+        generate_orderId() 
+
+
+
+def place_order(request):
+    context = {}
+    if request.user.is_authenticated:
+
+        oid = generate_orderId()
+        print(oid)
+        c = Cart.objects.filter(uid = request.user.id)
+        for x in c:  #[cart : cart object(1)> , cart object (2)]
+            o = Order.objects.create(order_id = oid, uid = x.uid, pid = x.pid ,qty = x.qty )
+            o.save()
+            x.delete()
+        
+
+        q1 = Q(uid = request.user.id)
+        q2 = Q(is_completed = False)
+        o = Order.objects.filter(q1 & q2)
+
+        nos = len(o)
+        total = 0
+        for x in o:
+            total = total + (x.pid.price*x.qty)
+
+
+        context['orders'] = o
+        context['n'] = nos
+        context['amt'] = total
+
+
+
+        return render(request,'storeapp/place_order.html',context)
+    
+    else:
+        return redirect('accountapp/login')
+
+
+
+def cancelOrder(request,rid):
+    o = Order.objects.filter(id = rid)
+    o.delete()
+
+    oRem = Order.objects.filter(uid = request.user.id)
+    context = { 'orders':oRem}
+    #return render(request,'storeapp/place_order.html',context)
+    return redirect('/cart')
+
+
+#remove orde
+
+#makepayment
+def makepayment(request):
+    context = {}
+    client = razorpay.Client(auth=("rzp_test_sTaD6TcNmJOUde", "sr7TEqG3Y8C2h7im2GWybzPG"))
+    q1 = Q(uid = request.user.id)
+    q2 = Q(is_completed = False)
+    o = Order.objects.filter(q1 & q2)
+    print(o)
+    total = 0
+    for x in o:
+        total = total +(x.pid.price*x.qty)
+
+    famt = total*100
+    data = {"amount": famt, "currency": "INR", "receipt": str(o[0].order_id) }
+    print(data)
+    payment = client.order.create(data=data)
+    print(payment)
+    context['payment']=payment
+
+    return render(request,'storeapp/pay.html',context)
+
+# to send email in django 
+#  
+def sendmail(request):
+    order_id = request.GET['oid']
+    pay_id = request.GET['rpayid']
+    # roid = request.GET['roid']
+
+    #update order table  is_completed to 1
+    o = Order.objects.filter(order_id = order_id)
+    o.update(is_completed = True)
+
+    subject = "Ekart Order has been placed successfully"
+    msg = "Your Order details are:  Order_id:"+order_id +"  "+"Payment ID:"+pay_id
+
+
+    send_mail(
+    subject,
+    msg,
+    "anandbhere46@gmail.com",
+    ["harshvishe1418@gmail.com"],
+    # [request.user.email],
+    fail_silently=False,
+    )
+
+    return HttpResponse("send mail ,Successfully paid payment add updated cart by setting is_completed to 1")
+
+
+#hxop ltcq hywk xjex
+
+

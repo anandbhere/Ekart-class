@@ -9,7 +9,7 @@
         <table class="table">
             <tr>
                 <th>Customer Name</th>
-                <td>Itvedant Thane</td>
+                <td>{{user.username}}</td>
             </tr>
             <tr>
                 <th>Mobile Number</th>
@@ -17,51 +17,63 @@
             </tr>
             <tr>
                 <th>Email</th>
-                <td>itvedant@gmail.com</td>
+                <td>{{user.email}}</td>
             </tr>
         </table>
 
     <h5 class="bg-danger text-white p-1">Cart Details</h5>
-    <div class="row">
-        <div class="col-md-3">
-            <img src="{% static 'assets/image/Samsung.jpg' %}" width="100%" alt="">
-        </div>
 
-        <div class="col-md-9">
-            <table class="table table-borderless">
-            <tr>
-                <th>Name:</th>
-                <td>Samsung</td>
-            </tr>
+      {% for x in products %}
+                    <div class="row">
+                        <div class="col-md-3">
+                            <img src="{{x.pid.pimage.url}}" width="100%" alt="">
+                        </div>
 
-            <tr>
-                <th>Price:</th>
-                <td>Rs.80000</td>
-            </tr>
+                        <div class="col-md-9">
+                            <table class="table table-borderless">
+                            <tr>
+                                <th>Name:</th>
+                                <td>{{x.pid.name}}</td>
+                            </tr>
 
-            <tr>
-                <th>Product Category:</th>
-                <td>Mobile</td>
-            </tr>
+                            <tr>
+                                <th>Price:</th>
+                                <td>{{x.pid.price}}</td>
+                            </tr>
 
-            <tr>
-                <th>Quantity:</th>
-                <td>
-                    <button class="btn btn-danger">-</button>
-                    <input type="number" name="qty" value="1">
-                    <button class="btn btn-success">+</button>
-                </td>
+                                <tr>
+                                    <th>Product Category:</th>
+                                    {% if x.pid.cat == 0 %}
+                                    <td>Mobile</td>
+                                    {% elif x.pid.cat == 1 %}
+                                    <td>Shoes</td>
+                                    {% else %}
+                                    <td>Cloths</td>
+                                    {% endif %}
+                                </tr>
+
+                            <tr>
+                                <th>Quantity:</th>
+                                <td>
+                                    <a href="/changeqty/{{x.id}}?q=minus"><button class="btn btn-danger">-</button></a>
+                                    <input type="number" name="qty" value="{{x.qty}}">
+                                    <a href="/changeqty/{{x.id}}?q=plus"><button class="btn btn-success">+</button></a>
+                                </td>
 
 
-            </tr>
+                            </tr>
 
-            <tr>
-                <td><button class="btn btn-danger">Remove</button></td>
-            </tr>
+                            <tr>
+                                <td><a href="/removecart/{{x.id}}"><button class="btn btn-danger">Remove</button></a></td>
+                            </tr>
 
-            </table>
-        </div>
-    </div>
+                            </table>
+                        </div>
+                    </div>
+
+       {% endfor %}
+
+
     </div>
 
     <div class="col-md-3">
@@ -69,15 +81,18 @@
         <table class="table table-borderless">
             <tr>
                 <th>Total Items</th>
-                <td>4</td>
+                <td>{{n}}</td>
             </tr>
             <tr>
                 <th>Total Amouont</th>
-                <td>Rs.2,40,000</td>
+                <td>Rs:{{amt}}</td>
             </tr>
             <tr>
-                <td><button class="btn btn-danger">Place Order</button></td>
+                <td><a href="/place_order"><button class="btn btn-danger">Place Order</button></a></td>
             </tr>
+
+
+           
         </table>
     </div>
 </div>

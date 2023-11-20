@@ -21,6 +21,13 @@ urlpatterns = [
     path('sort',views.sort),
     path('search',views.search),
     path('cart/<prod_id>',views.addTo_cart),
+    path('removecart/<remove_id>',views.removecart),
+    path('changeqty/<cid>',views.changeqty),
+    path('makepayment',views.makepayment),
+    path('sendmail',views.sendmail),
+    path('removecart/<remove_id>',views.removecart),
+    path('cancelOrder/<rid>',views.cancelOrder),
+
 
 ]
 

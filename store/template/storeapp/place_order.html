@@ -10,7 +10,7 @@
         <table class="table">
             <tr>
                 <th>Customer Name</th>
-                <td>Itvedant Thane</td>
+                <td>{{user.username}}</td>
             </tr>
             <tr>
                 <th>Mobile Number</th>
@@ -18,42 +18,58 @@
             </tr>
             <tr>
                 <th>Email</th>
-                <td>itvedant@gmail.com</td>
+                <td>{{user.email}}</td>
             </tr>
         </table>
 
     <h5 class="bg-danger text-white p-1">Order Details</h5>
+    {%for x in orders%}
     <div class="row">
         <div class="col-md-3">
-            <img src="{% static 'assets/image/Samsung.jpg' %}" width="100%" alt="">
+            <img src="{{x.pid.pimage.url}}" width="100%" alt="">
         </div>
 
         <div class="col-md-9">
             <table class="table table-borderless">
+                <tr>
+                    <th>Order ID:</th>
+                    <td>Ek05656{{x.order_id}}</td>
+                </tr>
             <tr>
                 <th>Name:</th>
-                <td>Samsung</td>
+                <td>Samsung{{x.pid.name}}</td>
             </tr>
 
             <tr>
                 <th>Price:</th>
-                <td>Rs.80000</td>
+                <td>Rs{{x.pid.price}}</td>
+            </tr>
+            <tr>
+                <th>Quantity</th>
+                <td>{{x.qty}}</td>
             </tr>
 
             <tr>
                 <th>Product Category:</th>
+                {% if x.pid.cat == 0 %}
                 <td>Mobile</td>
+                {% elif x.pid.cat == 1 %}
+                <td>Shoes</td>
+                {% else %}
+                <td>Cloths</td>
+                {% endif %}
             </tr>
 
             </tr>
 
             <tr>
-                <td><button class="btn btn-danger">Remove</button></td>
+                <td><a href="/cancelOrder/{{x.id}}"><button class="btn btn-danger">Remove</button></a></td>
             </tr>
 
             </table>
         </div>
     </div>
+    {% endfor %}
     </div>
 
     <div class="col-md-3">
@@ -61,14 +77,14 @@
         <table class="table table-borderless">
             <tr>
                 <th>Total Items</th>
-                <td>4</td>
+                <td>{{n}}</td>
             </tr>
             <tr>
                 <th>Total Amouont</th>
-                <td>Rs.2,40,000</td>
+                <td>Rs{{amt}}</td>
             </tr>
             <tr>
-                <td><button class="btn btn-danger">Make Payment</button></td>
+                <td><a href="makepayment"><button class="btn btn-danger">Make Payment</button></a></td>
             </tr>
         </table>
     </div>
